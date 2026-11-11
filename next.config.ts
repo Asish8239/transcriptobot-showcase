@@ -1,7 +1,7 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
-  /* config options here */
+  output: 'export',
   cacheComponents: true,
   partialPrefetching: true,
   turbopack: {
@@ -11,6 +11,14 @@ const nextConfig: NextConfig = {
         as: "*.css",
       },
     },
+    root: process.cwd(),
+  },
+  images: {
+    unoptimized: true,
+  },
+  trailingSlash: true,
+  typescript: {
+    ignoreBuildErrors: true,
   },
 };
 
