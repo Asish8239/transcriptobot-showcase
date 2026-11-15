@@ -1,0 +1,18 @@
+# Robots.txt for TranscriptoBot
+User-agent: *
+Allow: /
+
+# Sitemap
+Sitemap: https://transcriptobot.com/sitemap.xml
+
+# Host
+Host: https://transcriptobot.com
+
+# Disallow private/admin paths
+Disallow: /api/
+Disallow: /_next/
+Disallow: /*.json$
+Disallow: /private/
+
+# Crawl-delay (optional, for polite crawling)
+Crawl-delay: 10
