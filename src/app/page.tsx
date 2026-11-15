@@ -1,8 +1,8 @@
-
 'use client';
 
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Link from 'next/link';
+import { motion } from 'framer-motion';
 import {
   ArrowDown,
   ArrowRight,
@@ -28,6 +28,41 @@ import { Footer } from '@/components/ui/Footer';
 
 const GITHUB_REPO_URL = 'https://github.com/Asish8239/TranscriptoBot';
 
+const containerVariants = {
+  hidden: { opacity: 0 },
+  visible: {
+    opacity: 1,
+    transition: {
+      staggerChildren: 0.1,
+      delayChildren: 0.2,
+    },
+  },
+} as const;
+
+const itemVariants = {
+  hidden: { opacity: 0, y: 30 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
+    },
+  },
+} as const;
+
+const fadeInUpVariants = {
+  hidden: { opacity: 0, y: 20 },
+  visible: {
+    opacity: 1,
+    y: 0,
+    transition: {
+      duration: 0.6,
+      ease: [0.25, 0.46, 0.45, 0.94] as const,
+    },
+  },
+} as const;
+
 type DemoTab = 'transcript' | 'translation' | 'summary';
 
 const demoTabs: { id: DemoTab; label: string }[] = [
@@ -41,13 +76,13 @@ const transcriptLines = [
     time: '00:00',
     speaker: 'Speaker 01',
     content:
-      'Good morning, everyone. Thank you for joining today’s project review meeting.',
+      'Good morning, everyone. Thank you for joining today\'s project review meeting.',
   },
   {
     time: '00:08',
     speaker: 'Speaker 02',
     content:
-      'Let’s start with the progress from the previous sprint and review the pending tasks.',
+      'Let\'s start with the progress from the previous sprint and review the pending tasks.',
   },
   {
     time: '00:17',
@@ -188,9 +223,115 @@ function SectionLabel({
   );
 }
 
-function ProductDemo() {
-  const [activeTab, setActiveTab] = useState<DemoTab>('transcript');
+function ProductDemo({ activeTab, onTabChange }: { activeTab: DemoTab; onTabChange: (tab: DemoTab) => void }) {
   const [playing, setPlaying] = useState(false);
+
+  const sidebarItems = [
+    { id: 'transcript' as DemoTab, label: 'Transcript', icon: FileText },
+    { id: 'translation' as DemoTab, label: 'Translation', icon: Languages },
+    { id: 'summary' as DemoTab, label: 'Summary', icon: ListChecks },
+  ];
+
+  const renderTabContent = () => {
+    switch (activeTab) {
+      case 'transcript':
+        return (
+          <div className="space-y-5">
+            {transcriptLines.map((line, index) => (
+              <div key={line.time} className="flex gap-4">
+                <span className="shrink-0 pt-0.5 font-mono text-[11px] text-orange-400/80">
+                  {line.time}
+                </span>
+                <div>
+                  <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-600">
+                    {line.speaker}
+                  </p>
+                  <p className="text-sm leading-6 text-neutral-300">
+                    {line.content}
+                  </p>
+                </div>
+                {index === 0 && (
+                  <span className="sr-only">First transcript entry</span>
+                )}
+              </div>
+            ))}
+          </div>
+        );
+      case 'translation':
+        return (
+          <div className="space-y-5">
+            <div className="flex items-center justify-between border-b border-white/10 pb-4">
+              <span className="text-xs text-neutral-500">
+                English <ArrowRight className="mx-1 inline h-3 w-3" /> Hindi
+              </span>
+              <span className="rounded border border-white/10 px-2 py-1 text-[10px] text-neutral-500">
+                Sample output
+              </span>
+            </div>
+
+            <div>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-600">
+                Original
+              </p>
+              <p className="text-sm leading-6 text-neutral-400">
+                Good morning, everyone. Thank you for joining today's project
+                review meeting.
+              </p>
+            </div>
+
+            <div>
+              <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-orange-400">
+                Translation
+              </p>
+              <p className="text-sm leading-7 text-neutral-200">
+                सभी को सुप्रभात। आज की परियोजना समीक्षा बैठक में शामिल होने
+                के लिए आप सभी का धन्यवाद।
+              </p>
+            </div>
+          </div>
+        );
+      case 'summary':
+        return (
+          <div>
+            <div className="mb-5 flex items-center gap-2">
+              <Sparkles className="h-4 w-4 text-orange-400" />
+              <span className="text-sm font-medium text-neutral-200">
+                Meeting summary
+              </span>
+            </div>
+
+            <p className="text-sm leading-7 text-neutral-400">
+              The team reviewed the previous sprint and discussed progress
+              across the transcription pipeline. The next development cycle
+              will prioritize translation accuracy and export functionality.
+            </p>
+
+            <div className="mt-7">
+              <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-500">
+                Key points
+              </p>
+              <ul className="space-y-3">
+                {[
+                  'Transcription pipeline improvements',
+                  'Translation accuracy review',
+                  'Export functionality prioritization',
+                ].map((item) => (
+                  <li
+                    key={item}
+                    className="flex items-start gap-3 text-sm text-neutral-300"
+                  >
+                    <Check className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" />
+                    {item}
+                  </li>
+                ))}
+              </ul>
+            </div>
+          </div>
+        );
+      default:
+        return null;
+    }
+  };
 
   return (
     <div className="overflow-hidden rounded-xl border border-white/10 bg-[#151715] shadow-2xl shadow-black/30">
@@ -222,18 +363,24 @@ function ProductDemo() {
           </p>
 
           <div className="space-y-1">
-            <div className="flex items-center gap-3 rounded-md bg-orange-400/10 px-3 py-2.5 text-sm text-orange-300">
-              <FileText className="h-4 w-4" />
-              Transcript
-            </div>
-            <div className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-neutral-500">
-              <Languages className="h-4 w-4" />
-              Translation
-            </div>
-            <div className="flex items-center gap-3 rounded-md px-3 py-2.5 text-sm text-neutral-500">
-              <ListChecks className="h-4 w-4" />
-              Summary
-            </div>
+            {sidebarItems.map((item) => {
+              const Icon = item.icon;
+              const isActive = activeTab === item.id;
+              return (
+                <button
+                  key={item.id}
+                  onClick={() => onTabChange(item.id)}
+                  className={`flex items-center gap-3 rounded-md px-3 py-2.5 text-sm transition-colors w-full text-left ${
+                    isActive
+                      ? 'bg-orange-400/10 text-orange-300'
+                      : 'text-neutral-500 hover:bg-white/[0.04] hover:text-white'
+                  }`}
+                >
+                  <Icon className={`h-4 w-4 ${isActive ? 'text-orange-300' : ''}`} />
+                  {item.label}
+                </button>
+              );
+            })}
           </div>
 
           <div className="mt-8 border-t border-white/10 pt-5">
@@ -283,7 +430,7 @@ function ProductDemo() {
                 <button
                   key={tab.id}
                   type="button"
-                  onClick={() => setActiveTab(tab.id)}
+                  onClick={() => onTabChange(tab.id)}
                   className={`rounded px-3 py-2 text-xs transition ${
                     activeTab === tab.id
                       ? 'bg-orange-400 text-neutral-950'
@@ -296,99 +443,7 @@ function ProductDemo() {
             </div>
           </div>
 
-          {activeTab === 'transcript' && (
-            <div className="space-y-5">
-              {transcriptLines.map((line, index) => (
-                <div key={line.time} className="flex gap-4">
-                  <span className="shrink-0 pt-0.5 font-mono text-[11px] text-orange-400/80">
-                    {line.time}
-                  </span>
-                  <div>
-                    <p className="mb-1 text-[10px] font-semibold uppercase tracking-wider text-neutral-600">
-                      {line.speaker}
-                    </p>
-                    <p className="text-sm leading-6 text-neutral-300">
-                      {line.content}
-                    </p>
-                  </div>
-                  {index === 0 && (
-                    <span className="sr-only">First transcript entry</span>
-                  )}
-                </div>
-              ))}
-            </div>
-          )}
-
-          {activeTab === 'translation' && (
-            <div className="space-y-5">
-              <div className="flex items-center justify-between border-b border-white/10 pb-4">
-                <span className="text-xs text-neutral-500">
-                  English <ArrowRight className="mx-1 inline h-3 w-3" /> Hindi
-                </span>
-                <span className="rounded border border-white/10 px-2 py-1 text-[10px] text-neutral-500">
-                  Sample output
-                </span>
-              </div>
-
-              <div>
-                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-neutral-600">
-                  Original
-                </p>
-                <p className="text-sm leading-6 text-neutral-400">
-                  Good morning, everyone. Thank you for joining today’s project
-                  review meeting.
-                </p>
-              </div>
-
-              <div>
-                <p className="mb-2 text-[10px] font-semibold uppercase tracking-wider text-orange-400">
-                  Translation
-                </p>
-                <p className="text-sm leading-7 text-neutral-200">
-                  सभी को सुप्रभात। आज की परियोजना समीक्षा बैठक में शामिल होने
-                  के लिए आप सभी का धन्यवाद।
-                </p>
-              </div>
-            </div>
-          )}
-
-          {activeTab === 'summary' && (
-            <div>
-              <div className="mb-5 flex items-center gap-2">
-                <Sparkles className="h-4 w-4 text-orange-400" />
-                <span className="text-sm font-medium text-neutral-200">
-                  Meeting summary
-                </span>
-              </div>
-
-              <p className="text-sm leading-7 text-neutral-400">
-                The team reviewed the previous sprint and discussed progress
-                across the transcription pipeline. The next development cycle
-                will prioritize translation accuracy and export functionality.
-              </p>
-
-              <div className="mt-7">
-                <p className="mb-3 text-xs font-semibold uppercase tracking-wider text-neutral-500">
-                  Key points
-                </p>
-                <ul className="space-y-3">
-                  {[
-                    'Transcription pipeline improvements',
-                    'Translation accuracy review',
-                    'Export functionality prioritization',
-                  ].map((item) => (
-                    <li
-                      key={item}
-                      className="flex items-start gap-3 text-sm text-neutral-300"
-                    >
-                      <Check className="mt-0.5 h-4 w-4 shrink-0 text-orange-400" />
-                      {item}
-                    </li>
-                  ))}
-                </ul>
-              </div>
-            </div>
-          )}
+          {renderTabContent()}
 
           <div className="mt-7 flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
             <span className="text-[10px] text-neutral-600">
@@ -438,6 +493,7 @@ function FeatureItem({
 
 export default function Home() {
   const [showAllTech, setShowAllTech] = useState(false);
+  const [activeDemoTab, setActiveDemoTab] = useState<DemoTab>('transcript');
 
   return (
     <main className="min-h-screen overflow-hidden bg-[#101110] text-neutral-100">
@@ -663,7 +719,7 @@ export default function Home() {
             </p>
           </div>
 
-          <ProductDemo />
+          <ProductDemo activeTab={activeDemoTab} onTabChange={setActiveDemoTab} />
         </div>
       </section>
 
@@ -685,11 +741,19 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid gap-x-10 sm:grid-cols-2 lg:grid-cols-3">
+          <motion.div
+            className="grid gap-x-10 sm:grid-cols-2 lg:grid-cols-3"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+          >
             {features.map((feature) => (
-              <FeatureItem key={feature.number} feature={feature} />
+              <motion.div key={feature.number} variants={itemVariants}>
+                <FeatureItem feature={feature} />
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -713,9 +777,15 @@ export default function Home() {
             </p>
           </div>
 
-          <div className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4">
+          <motion.div
+            className="grid gap-10 sm:grid-cols-2 lg:grid-cols-4"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+          >
             {workflow.map((step, index) => (
-              <div key={step.number} className="relative border-t border-white/15 pt-6">
+              <motion.div key={step.number} variants={itemVariants} className="relative border-t border-white/15 pt-6">
                 <div className="mb-8 flex items-center justify-between">
                   <span className="font-mono text-sm text-orange-400">
                     {step.number}
@@ -730,9 +800,9 @@ export default function Home() {
                 <p className="text-sm leading-7 text-neutral-500">
                   {step.description}
                 </p>
-              </div>
+              </motion.div>
             ))}
-          </div>
+          </motion.div>
         </div>
       </section>
 
@@ -762,43 +832,50 @@ export default function Home() {
           </div>
 
           <div className="border-t border-white/10">
-            {technologies
-              .slice(0, showAllTech ? technologies.length : 4)
-              .map((group, index) => (
-                <div
-                  key={group.category}
-                  className="grid gap-4 border-b border-white/10 py-6 sm:grid-cols-[180px_1fr] sm:items-center"
-                >
-                  <div className="flex items-center gap-3">
-                    <span className="font-mono text-[10px] text-neutral-600">
-                      0{index + 1}
-                    </span>
-                    <span className="text-sm text-neutral-300">
-                      {group.category}
-                    </span>
-                  </div>
-
-                  <div className="flex flex-wrap gap-2">
-                    {group.items.map((item) => (
-                      <span
-                        key={item}
-                        className="border border-white/10 px-3 py-2 text-xs text-neutral-400"
-                      >
-                        {item}
-                      </span>
-                    ))}
-                  </div>
-                </div>
-              ))}
-
-            <button
-              type="button"
-              onClick={() => setShowAllTech((value) => !value)}
-              className="mt-5 inline-flex items-center gap-2 text-xs font-medium text-orange-400 transition hover:text-orange-300"
+            <motion.div
+              className="grid gap-4"
+              variants={containerVariants}
+              initial="hidden"
+              whileInView="visible"
+              viewport={{ once: true, margin: '-100px' }}
             >
-              {showAllTech ? 'Show less' : 'Show all technologies'}
-              <ArrowRight className="h-3.5 w-3.5" />
-            </button>
+              {technologies
+                .slice(0, showAllTech ? technologies.length : 4)
+                .map((group, index) => (
+                  <motion.div key={group.category} variants={itemVariants} className="grid gap-4 border-b border-white/10 py-6 sm:grid-cols-[180px_1fr] sm:items-center">
+                    <div className="flex items-center gap-3">
+                      <span className="font-mono text-[10px] text-neutral-600">
+                        0{index + 1}
+                      </span>
+                      <span className="text-sm text-neutral-300">
+                        {group.category}
+                      </span>
+                    </div>
+
+                    <div className="flex flex-wrap gap-2">
+                      {group.items.map((item) => (
+                        <span
+                          key={item}
+                          className="border border-white/10 px-3 py-2 text-xs text-neutral-400"
+                        >
+                          {item}
+                        </span>
+                      ))}
+                    </div>
+                  </motion.div>
+                ))}
+
+              <motion.div variants={itemVariants} className="mt-5">
+                <button
+                  type="button"
+                  onClick={() => setShowAllTech((value) => !value)}
+                  className="inline-flex items-center gap-2 text-xs font-medium text-orange-400 transition hover:text-orange-300"
+                >
+                  {showAllTech ? 'Show less' : 'Show all technologies'}
+                  <ArrowRight className="h-3.5 w-3.5" />
+                </button>
+              </motion.div>
+            </motion.div>
           </div>
         </div>
       </section>
@@ -806,15 +883,26 @@ export default function Home() {
       {/* DESIGN PRINCIPLES */}
       <section className="border-y border-white/10 bg-[#141614]">
         <div className="mx-auto grid max-w-7xl gap-12 px-5 py-20 sm:px-8 lg:grid-cols-[0.8fr_1.2fr] lg:py-24">
-          <div>
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUpVariants}
+          >
             <SectionLabel number="06">Engineering approach</SectionLabel>
             <h2 className="max-w-md text-3xl font-semibold tracking-tight text-neutral-100">
               Designed around the work.
             </h2>
-          </div>
+          </motion.div>
 
-          <div className="grid gap-8 sm:grid-cols-2">
-            <div>
+          <motion.div
+            className="grid gap-8 sm:grid-cols-2"
+            variants={containerVariants}
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true, margin: '-100px' }}
+          >
+            <motion.div variants={itemVariants}>
               <ShieldCheck className="mb-4 h-5 w-5 text-orange-400" />
               <h3 className="mb-2 text-sm font-semibold text-neutral-200">
                 Understandable pipeline
@@ -823,9 +911,9 @@ export default function Home() {
                 Separate processing stages make the workflow easier to
                 understand, maintain, and improve.
               </p>
-            </div>
+            </motion.div>
 
-            <div>
+            <motion.div variants={itemVariants}>
               <Zap className="mb-4 h-5 w-5 text-orange-400" />
               <h3 className="mb-2 text-sm font-semibold text-neutral-200">
                 Modular capabilities
@@ -834,9 +922,9 @@ export default function Home() {
                 Speech recognition, translation, analysis, and export are
                 distinct parts of the application.
               </p>
-            </div>
+            </motion.div>
 
-            <div>
+            <motion.div variants={itemVariants}>
               <FileText className="mb-4 h-5 w-5 text-orange-400" />
               <h3 className="mb-2 text-sm font-semibold text-neutral-200">
                 Useful output formats
@@ -845,9 +933,9 @@ export default function Home() {
                 Export options make generated content easier to reuse in
                 documentation and media workflows.
               </p>
-            </div>
+            </motion.div>
 
-            <div>
+            <motion.div variants={itemVariants}>
               <Volume2 className="mb-4 h-5 w-5 text-orange-400" />
               <h3 className="mb-2 text-sm font-semibold text-neutral-200">
                 Media-focused processing
@@ -856,15 +944,21 @@ export default function Home() {
                 The system is built around audio and video input rather than
                 treating transcription as an isolated text operation.
               </p>
-            </div>
-          </div>
+            </motion.div>
+          </motion.div>
         </div>
       </section>
 
       {/* CTA */}
       <section id="repository" className="scroll-mt-20">
         <div className="mx-auto max-w-7xl px-5 py-24 sm:px-8 lg:py-32">
-          <div className="relative overflow-hidden border border-white/10 bg-[#151715] px-6 py-14 sm:px-12 sm:py-20">
+          <motion.div
+            initial="hidden"
+            whileInView="visible"
+            viewport={{ once: true }}
+            variants={fadeInUpVariants}
+            className="relative overflow-hidden border border-white/10 bg-[#151715] px-6 py-14 sm:px-12 sm:py-20"
+          >
             <div className="absolute -right-20 -top-24 h-72 w-72 rounded-full bg-orange-400/[0.06] blur-3xl" />
 
             <div className="relative max-w-2xl">
@@ -882,27 +976,36 @@ export default function Home() {
                 in TranscriptoBot.
               </p>
 
-              <div className="mt-10 flex flex-wrap gap-4">
-                <a
-                  href={GITHUB_REPO_URL}
-                  target="_blank"
-                  rel="noreferrer"
-                  className="inline-flex items-center gap-3 bg-orange-400 px-6 py-4 text-sm font-semibold text-neutral-950 transition hover:bg-orange-300"
-                >
-                  View GitHub repository
-                  <ArrowUpRight className="h-4 w-4" />
-                </a>
+              <motion.div
+                variants={containerVariants}
+                initial="hidden"
+                whileInView="visible"
+                viewport={{ once: true, margin: '-50px' }}
+              >
+                <motion.div variants={itemVariants}>
+                  <a
+                    href={GITHUB_REPO_URL}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="inline-flex items-center gap-3 bg-orange-400 px-6 py-4 text-sm font-semibold text-neutral-950 transition hover:bg-orange-300"
+                  >
+                    View GitHub repository
+                    <ArrowUpRight className="h-4 w-4" />
+                  </a>
+                </motion.div>
 
-                <Link
-                  href="/features"
-                  className="inline-flex items-center gap-3 border border-white/15 px-6 py-4 text-sm font-medium text-neutral-300 transition hover:border-white/40 hover:text-white"
-                >
-                  Explore features
-                  <ArrowRight className="h-4 w-4" />
-                </Link>
-              </div>
+                <motion.div variants={itemVariants}>
+                  <Link
+                    href="/features"
+                    className="inline-flex items-center gap-3 border border-white/15 px-6 py-4 text-sm font-medium text-neutral-300 transition hover:border-white/40 hover:text-white"
+                  >
+                    Explore features
+                    <ArrowRight className="h-4 w-4" />
+                  </Link>
+                </motion.div>
+              </motion.div>
             </div>
-          </div>
+          </motion.div>
         </div>
       </section>
 

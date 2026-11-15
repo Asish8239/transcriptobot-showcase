@@ -1,0 +1,43 @@
+{
+  "name": "TranscriptoBot",
+  "short_name": "TranscriptoBot",
+  "description": "AI-powered transcription, translation, and meeting intelligence",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#101110",
+  "theme_color": "#f58b35",
+  "orientation": "portrait-primary",
+  "scope": "/",
+  "icons": [
+    {
+      "src": "/icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "/icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ],
+  "categories": ["productivity", "utilities", "business"],
+  "screenshots": [],
+  "shortcuts": [
+    {
+      "name": "Product Showcase",
+      "short_name": "Showcase",
+      "description": "Explore TranscriptoBot features",
+      "url": "/showcase",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    },
+    {
+      "name": "Documentation",
+      "short_name": "Docs",
+      "description": "Read the documentation",
+      "url": "/docs",
+      "icons": [{ "src": "/icon-192.png", "sizes": "192x192" }]
+    }
+  ]
+}
